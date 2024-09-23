@@ -1,0 +1,11 @@
+.layout {
+  max-width: 640px;
+  height: inherit;
+  margin-inline: auto;
+  padding-inline: 32px;
+  box-sizing: border-box;
+
+  background-color: #f9f9f9;
+
+  text-align: left;
+}

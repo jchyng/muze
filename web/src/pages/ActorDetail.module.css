@@ -1,0 +1,32 @@
+.actor_header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+.back_button {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 10px;
+
+  padding: 8px;
+}
+
+.name_tag {
+  margin-block: 48px;
+}
+
+.profile_img {
+  width: 200px;
+  height: 200px;
+  border-radius: 300px;
+}
+
+.poster_img {
+  width: 200px;
+  height: 200px;
+}

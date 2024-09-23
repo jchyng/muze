@@ -1,0 +1,33 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+
+  width: 100%;
+  max-width: 640px;
+  height: 64px;
+
+  background-color: beige;
+
+  z-index: 10;
+}
+
+.nav_item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-decoration: none;
+  color: black;
+
+  width: 100%;
+}
+
+.nav_item_text {
+  font-size: 12px;
+}
