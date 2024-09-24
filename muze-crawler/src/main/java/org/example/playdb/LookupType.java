@@ -7,7 +7,7 @@ import lombok.Getter;
  * */
 @Getter
 public enum LookupType {
-    ALL("1"), UPDATED("3");
+    ALL("1"), NEW("3");
 
     private final String code;
 

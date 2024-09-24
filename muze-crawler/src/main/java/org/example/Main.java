@@ -1,7 +1,11 @@
 package org.example;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.sun.net.httpserver.HttpServer;
 import org.example.domain.Actor;
 import org.example.domain.Musical;
 import org.example.playdb.Genre;
@@ -12,50 +16,23 @@ import org.example.playdb.PlayDBParser;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static final int PORT = 8080;
 
-    public static void main(String[] args) {
-        PlayDBParser playDBParser = new PlayDBParser();
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+    public static void main(String[] args) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-        LookupType lookupType = LookupType.ALL;
-        Genre[] genres = {Genre.LICENSE, Genre.ORIGINAL, Genre.CREATIVE, Genre.MUSICAL};
-        List<Future<Map<Musical, List<Actor>>>> futures = new ArrayList<>();
+        // /crawl 요청을 처리할 핸들러 설정
+        server.createContext("/", new CrawlHandler(new CrawlingProcessor()));
 
-        for (Genre genre : genres) {
-            futures.add(executor.submit(() -> crawlingProcess(playDBParser, lookupType, genre)));
-        }
+        server.setExecutor(null); // 기본 실행자 사용
+        server.start();
 
-        Map<Musical, List<Actor>> totalResult = new HashMap<>();
-        int completedGenres = 0;
-
-        for (int i = 0; i < futures.size(); i++) {
-            try {
-                Map<Musical, List<Actor>> result = futures.get(i).get();
-                totalResult.putAll(result);
-                completedGenres++;
-                log.info("Completed crawling for genre: {}. Progress: {}%", genres[i], (completedGenres * 100 / genres.length));
-            } catch (InterruptedException | ExecutionException e) {
-                log.error("Error while crawling genre: {}", genres[i], e);
-            }
-        }
-
-        executor.shutdown();
-        log.debug("Crawling completed for all genres. Total musicals crawled: {}", totalResult.size());
-    }
-
-    private static Map<Musical, List<Actor>> crawlingProcess(PlayDBParser playDBParser, LookupType lookupType, Genre genre) {
-        log.info("Starting crawling process for genre: {}", genre);
-        PlayDBCrawler crawler = new PlayDBCrawler(playDBParser, lookupType, genre);
-        try {
-            return crawler.call();
-        } catch (Exception e) {
-            log.error("Error in crawling process for genre: {}", genre, e);
-            return new HashMap<>();
-        }
+        log.info("서버가 {} 포트에서 시작되었습니다.", PORT);
     }
 }
