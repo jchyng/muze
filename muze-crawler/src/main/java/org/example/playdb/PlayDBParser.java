@@ -19,20 +19,20 @@ public class PlayDBParser {
     private final int TIMEOUT = 60000;
 
 
-    protected int getMaxPage(Genre genre) throws IOException {
-        String MUSICAL_URL = URLs.MUSICAL_URL + URLs.SUB_CATEGORY + genre.getCode() + URLs.PAGE;
+    protected int getMaxPage(LookupType lookupType, Genre genre) throws IOException {
+        String url = URLs.getMusicalUrl(lookupType, genre);
 
-        Document doc = Jsoup.connect(MUSICAL_URL).timeout(TIMEOUT).get();
+        Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
         Elements pageElements = doc.select("#contents .container1 > table > tbody > tr:last-child");
 
         String[] pageNums = pageElements.get(pageElements.size() - 1).text().split("/");
         return Integer.parseInt(pageNums[1].replaceAll("\\D+", ""));
     }
 
-    protected List<String> getAllMusicalIds(Genre genre, int maxPage) throws IOException {
-        String url = URLs.MUSICAL_URL + URLs.SUB_CATEGORY + genre.getCode() + URLs.PAGE;
-        List<String> musicalIds = new ArrayList<>();
+    protected List<String> getAllMusicalIds(LookupType lookupType, Genre genre, int maxPage) throws IOException {
+        String url = URLs.getMusicalUrl(lookupType, genre) + URLs.PAGE;
 
+        List<String> musicalIds = new ArrayList<>();
         for (int currentPage = 1; currentPage <= maxPage; currentPage++) {
             Document doc = Jsoup.connect(url + currentPage).timeout(TIMEOUT).get();
 
@@ -49,7 +49,7 @@ public class PlayDBParser {
     }
 
     protected Map<Musical, List<Actor>> getMusicalAndActors(String musicalId) throws IOException, ParseException {
-        String url = URLs.MUSICAL_DETAIL_URL + musicalId;
+        String url = URLs.getMusicalDetailUrl(musicalId);
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
 
         Musical musical = getMusical(doc, musicalId);

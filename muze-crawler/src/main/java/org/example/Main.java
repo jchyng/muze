@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.example.domain.Actor;
 import org.example.domain.Musical;
 import org.example.playdb.Genre;
+import org.example.playdb.LookupType;
 import org.example.playdb.PlayDBCrawler;
 import org.example.playdb.PlayDBParser;
 
@@ -21,11 +22,12 @@ public class Main {
         PlayDBParser playDBParser = new PlayDBParser();
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
+        LookupType lookupType = LookupType.ALL;
         Genre[] genres = {Genre.LICENSE, Genre.ORIGINAL, Genre.CREATIVE, Genre.MUSICAL};
         List<Future<Map<Musical, List<Actor>>>> futures = new ArrayList<>();
 
         for (Genre genre : genres) {
-            futures.add(executor.submit(() -> crawlingProcess(playDBParser, genre)));
+            futures.add(executor.submit(() -> crawlingProcess(playDBParser, lookupType, genre)));
         }
 
         Map<Musical, List<Actor>> totalResult = new HashMap<>();
@@ -38,7 +40,7 @@ public class Main {
                 completedGenres++;
                 log.info("Completed crawling for genre: {}. Progress: {}%", genres[i], (completedGenres * 100 / genres.length));
             } catch (InterruptedException | ExecutionException e) {
-                log.error("Error while crawling genre: " + genres[i], e);
+                log.error("Error while crawling genre: {}", genres[i], e);
             }
         }
 
@@ -46,13 +48,13 @@ public class Main {
         log.debug("Crawling completed for all genres. Total musicals crawled: {}", totalResult.size());
     }
 
-    private static Map<Musical, List<Actor>> crawlingProcess(PlayDBParser playDBParser, Genre genre) {
+    private static Map<Musical, List<Actor>> crawlingProcess(PlayDBParser playDBParser, LookupType lookupType, Genre genre) {
         log.info("Starting crawling process for genre: {}", genre);
-        PlayDBCrawler crawler = new PlayDBCrawler(playDBParser, genre);
+        PlayDBCrawler crawler = new PlayDBCrawler(playDBParser, lookupType, genre);
         try {
             return crawler.call();
         } catch (Exception e) {
-            log.error("Error in crawling process for genre: " + genre, e);
+            log.error("Error in crawling process for genre: {}", genre, e);
             return new HashMap<>();
         }
     }

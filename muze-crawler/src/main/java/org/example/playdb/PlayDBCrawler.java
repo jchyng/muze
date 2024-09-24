@@ -22,17 +22,19 @@ public class PlayDBCrawler implements Callable<Map<Musical, List<Actor>>> {
   private static final Logger log = LoggerFactory.getLogger(PlayDBCrawler.class);
   private static final int MUSICALS_PER_THREAD = 1000;
   private final PlayDBParser playDBParser;
+  private final LookupType lookupType;
   private final Genre genre;
 
-  public PlayDBCrawler(PlayDBParser playDBParser, Genre genre) {
+  public PlayDBCrawler(PlayDBParser playDBParser, LookupType lookupType, Genre genre) {
     this.playDBParser = playDBParser;
+    this.lookupType = lookupType;
     this.genre = genre;
   }
 
   @Override
   public Map<Musical, List<Actor>> call() throws Exception {
-    int maxPage = playDBParser.getMaxPage(genre);
-    List<String> musicalIds = playDBParser.getAllMusicalIds(genre, maxPage);
+    int maxPage = playDBParser.getMaxPage(lookupType, genre);
+    List<String> musicalIds = playDBParser.getAllMusicalIds(lookupType, genre, maxPage);
 
     int threadCount = (int) Math.ceil((double) musicalIds.size() / MUSICALS_PER_THREAD);
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
