@@ -1,13 +1,12 @@
 package org.example.domain;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 
 @Builder
@@ -15,6 +14,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @Entity
 public class Actor {
+
     @Id
     private String id;
 

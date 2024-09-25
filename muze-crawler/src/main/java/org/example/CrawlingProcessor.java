@@ -1,5 +1,13 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.example.domain.Actor;
 import org.example.domain.Musical;
 import org.example.playdb.Genre;
@@ -9,25 +17,28 @@ import org.example.playdb.PlayDBParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 public class CrawlingProcessor {
-    private static final Logger log = LoggerFactory.getLogger(CrawlingProcessor.class);
-    private final PlayDBParser playDBParser = new PlayDBParser();
 
-    public boolean crawling(LookupType lookupType, Genre[] genres) {
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+    private static final Logger log = LoggerFactory.getLogger(CrawlingProcessor.class);
+    private static final CrawlingProcessor INSTANCE = new CrawlingProcessor();
+    private final PlayDBParser playDBParser;
+
+
+    private CrawlingProcessor() {
+        this.playDBParser = PlayDBParser.getInstance();
+    }
+
+    public static CrawlingProcessor getInstance() {
+        return INSTANCE;
+    }
+
+
+    public void start(LookupType lookupType, Genre[] genres) throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(genres.length);
         List<Future<Map<Musical, List<Actor>>>> futures = new ArrayList<>();
 
         for (Genre genre : genres) {
-            futures.add(executor.submit(() -> crawlingProcess(lookupType, genre)));
+            futures.add(executor.submit(() -> callCrawler(lookupType, genre)));
         }
 
         Map<Musical, List<Actor>> totalResult = new HashMap<>();
@@ -36,17 +47,15 @@ public class CrawlingProcessor {
                 Map<Musical, List<Actor>> result = futures.get(i).get();
                 totalResult.putAll(result);
             } catch (InterruptedException | ExecutionException e) {
-                log.error("Error while crawling genre: {}", genres[i], e);
-                return false;
+                throw new Exception("Error while crawling genre: " + genres[i], e);
             }
         }
 
         executor.shutdown();
-        log.debug("Crawling completed for all genres. Total musicals crawled: {}", totalResult.size());
-        return true;
+        log.info("Crawling completed for all genres. Total musical count: {}", totalResult.size());
     }
 
-    private Map<Musical, List<Actor>> crawlingProcess(LookupType lookupType, Genre genre) {
+    private Map<Musical, List<Actor>> callCrawler(LookupType lookupType, Genre genre) {
         log.info("Starting crawling process for genre: {}", genre);
         PlayDBCrawler crawler = new PlayDBCrawler(playDBParser, lookupType, genre);
         try {

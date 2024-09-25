@@ -1,12 +1,5 @@
 package org.example.playdb;
 
-import org.example.domain.Actor;
-import org.example.domain.Musical;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,10 +7,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.example.domain.Actor;
+import org.example.domain.Musical;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PlayDBParser {
+    private Logger log = LoggerFactory.getLogger(PlayDBParser.class);
+    private static final PlayDBParser INSTANCE = new PlayDBParser();
     private final int TIMEOUT = 60000;
 
+    public static PlayDBParser getInstance() {
+        return INSTANCE;
+    }
 
     protected int getMaxPage(LookupType lookupType, Genre genre) throws IOException {
         String url = URLs.getMusicalUrl(lookupType, genre);
@@ -26,17 +32,25 @@ public class PlayDBParser {
         Elements pageElements = doc.select("#contents .container1 > table > tbody > tr:last-child");
 
         String[] pageNums = pageElements.get(pageElements.size() - 1).text().split("/");
-        return Integer.parseInt(pageNums[1].replaceAll("\\D+", ""));
+
+        try {
+            return Integer.parseInt(pageNums[1].replaceAll("\\D+", ""));
+        } catch (ArrayIndexOutOfBoundsException e)  {
+            log.info("{} {}에 존재하는 데이터가 없습니다.", lookupType.name(), genre);
+            return 0;
+        }
     }
 
-    protected List<String> getAllMusicalIds(LookupType lookupType, Genre genre, int maxPage) throws IOException {
-        String url = URLs.getMusicalUrl(lookupType, genre) + URLs.PAGE;
+    protected List<String> getAllMusicalIds(LookupType lookupType, Genre genre, int maxPage)
+        throws IOException {
+        String url = URLs.getMusicalUrl(lookupType, genre) + "&" + URLs.PAGE;
 
         List<String> musicalIds = new ArrayList<>();
         for (int currentPage = 1; currentPage <= maxPage; currentPage++) {
             Document doc = Jsoup.connect(url + currentPage).timeout(TIMEOUT).get();
 
-            Element musicalElement = doc.selectFirst("#contents .container1 > table > tbody > tr:last-child");
+            Element musicalElement = doc.selectFirst(
+                "#contents .container1 > table > tbody > tr:last-child");
 
             List<String> idTags = musicalElement.select("a[onclick^=goDetail]").eachAttr("onclick");
 
@@ -48,7 +62,8 @@ public class PlayDBParser {
         return musicalIds;
     }
 
-    protected Map<Musical, List<Actor>> getMusicalAndActors(String musicalId) throws IOException, ParseException {
+    protected Map<Musical, List<Actor>> getMusicalAndActors(String musicalId)
+        throws IOException, ParseException {
         String url = URLs.getMusicalDetailUrl(musicalId);
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
 
@@ -66,9 +81,9 @@ public class PlayDBParser {
 
         String title = "";
         Element titleElement = element.selectFirst(".title");
-        if (titleElement != null)
+        if (titleElement != null) {
             title = titleElement.text();
-
+        }
 
         String temporary = element.selectFirst("img[alt=일시]").parent().nextElementSibling().text();
         Date stDate = null;
@@ -90,34 +105,39 @@ public class PlayDBParser {
 
         Element viewAgeElement = element.selectFirst("img[alt=관람등급]");
         String viewAge = "";
-        if (viewAgeElement != null)
+        if (viewAgeElement != null) {
             viewAge = viewAgeElement.parent().nextElementSibling().text();
+        }
 
         Element runningTimeElement = element.selectFirst("img[alt=관람시간]");
         String runningTime = "";
-        if (runningTimeElement != null)
+        if (runningTimeElement != null) {
             runningTime = runningTimeElement.parent().nextElementSibling().text();
+        }
 
-        Element mainCharacterElement = doc.selectFirst(".detail_contentsbox > table > tbody > tr b");
+        Element mainCharacterElement = doc.selectFirst(
+            ".detail_contentsbox > table > tbody > tr b");
         String mainCharacter = "";
-        if (mainCharacterElement != null)
+        if (mainCharacterElement != null) {
             mainCharacter = mainCharacterElement.text();
+        }
 
         return Musical.builder()
-                .id(musicalId)
-                .title(title)
-                .theater(theater)
-                .posterImage(poster)
-                .stDate(stDate)
-                .edDate(edDate)
-                .viewAge(viewAge)
-                .runningTime(runningTime)
-                .mainCharacter(mainCharacter)
-                .build();
+            .id(musicalId)
+            .title(title)
+            .theater(theater)
+            .posterImage(poster)
+            .stDate(stDate)
+            .edDate(edDate)
+            .viewAge(viewAge)
+            .runningTime(runningTime)
+            .mainCharacter(mainCharacter)
+            .build();
     }
 
     private List<Actor> getActors(Document doc) {
-        Elements actorListByRole = doc.select(".detail_contentsbox > table > tbody > tr > td > table > tbody > tr");
+        Elements actorListByRole = doc.select(
+            ".detail_contentsbox > table > tbody > tr > td > table > tbody > tr");
         List<Actor> actors = new ArrayList<>();
 
         for (Element e : actorListByRole) {
@@ -131,11 +151,11 @@ public class PlayDBParser {
                 String name = IdAndName.get(i).text();
 
                 Actor actor = Actor.builder()
-                        .id(id)
-                        .name(name)
-                        .role(role)
-                        .profileImage(src)
-                        .build();
+                    .id(id)
+                    .name(name)
+                    .role(role)
+                    .profileImage(src)
+                    .build();
                 actors.add(actor);
             }
         }

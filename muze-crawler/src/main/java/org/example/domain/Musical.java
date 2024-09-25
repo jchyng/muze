@@ -1,19 +1,19 @@
 package org.example.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Musical {
+
     @Id
     private String id;
 
