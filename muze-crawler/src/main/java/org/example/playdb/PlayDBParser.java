@@ -131,11 +131,11 @@ public class PlayDBParser {
                 String name = IdAndName.get(i).text();
 
                 Actor actor = Actor.builder()
-                    .id(id)
-                    .name(name)
-                    .role(role)
-                    .profileImage(src)
-                    .build();
+                        .id(id)
+                        .name(name)
+                        .role(role)
+                        .profileImage(src)
+                        .build();
                 actors.add(actor);
             }
         }

@@ -15,18 +15,17 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @Entity
 public class Actor {
-	@Id
-	private String id;
+    @Id
+    private String id;
 
-	@Column
-	private String name;
-	
-	@Column
-	private String profileImage;
+    @Column
+    private String name;
 
-	@Column
-	private String role;
+    @Column
+    private String profileImage;
 
+    @Column
+    private String role;
 
 
 }

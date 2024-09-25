@@ -1,24 +1,11 @@
 package org.example;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import com.sun.net.httpserver.HttpServer;
-import org.example.domain.Actor;
-import org.example.domain.Musical;
-import org.example.playdb.Genre;
-import org.example.playdb.LookupType;
-import org.example.playdb.PlayDBCrawler;
-import org.example.playdb.PlayDBParser;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
