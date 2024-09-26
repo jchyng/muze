@@ -1,4 +1,4 @@
-package org.example;
+package org.muze;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;

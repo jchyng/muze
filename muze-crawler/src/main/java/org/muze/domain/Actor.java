@@ -1,4 +1,4 @@
-package org.example.domain;
+package org.muze.domain;
 
 
 import javax.persistence.Column;

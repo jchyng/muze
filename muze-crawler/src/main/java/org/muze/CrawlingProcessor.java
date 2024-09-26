@@ -1,4 +1,4 @@
-package org.example;
+package org.muze;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +8,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.example.domain.Actor;
-import org.example.domain.Musical;
-import org.example.playdb.Genre;
-import org.example.playdb.LookupType;
-import org.example.playdb.PlayDBCrawler;
-import org.example.playdb.PlayDBParser;
+import org.muze.domain.Actor;
+import org.muze.domain.Musical;
+import org.muze.playdb.Genre;
+import org.muze.playdb.LookupType;
+import org.muze.playdb.PlayDBCrawler;
+import org.muze.playdb.PlayDBParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

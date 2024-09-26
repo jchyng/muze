@@ -1,4 +1,4 @@
-package org.example.domain;
+package org.muze.domain;
 
 import java.util.Date;
 import javax.persistence.Column;

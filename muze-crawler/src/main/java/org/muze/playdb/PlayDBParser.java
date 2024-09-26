@@ -1,4 +1,4 @@
-package org.example.playdb;
+package org.muze.playdb;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.example.domain.Actor;
-import org.example.domain.Musical;
+import org.muze.domain.Actor;
+import org.muze.domain.Musical;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

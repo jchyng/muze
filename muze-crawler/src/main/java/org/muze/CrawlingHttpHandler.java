@@ -1,4 +1,4 @@
-package org.example;
+package org.muze;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
@@ -9,8 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
-import org.example.playdb.Genre;
-import org.example.playdb.LookupType;
+import org.muze.playdb.Genre;
+import org.muze.playdb.LookupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
