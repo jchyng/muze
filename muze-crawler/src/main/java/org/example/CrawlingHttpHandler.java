@@ -20,6 +20,10 @@ public class CrawlingHttpHandler implements HttpHandler {
     private final CrawlingProcessor crawlingProcessor = CrawlingProcessor.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * POST /crawl/all or /crawl/new path에 대해
+     * RequestBody에 ["LICENSE", "ORIGINAL"]와 같이 전달하여 원하는 범위와 장르에 대해 크롤링을 실행한다.
+     * */
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod().toUpperCase();
