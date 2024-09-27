@@ -1,5 +1,6 @@
 package org.muze.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,10 +13,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Entity
 public class Casting {
 
@@ -30,4 +31,7 @@ public class Casting {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "actor_id", referencedColumnName = "id")
     private Actor actor;
+
+    @Column
+    private String role;
 }

@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.muze.domain.Actor;
 import org.muze.domain.Musical;
+import org.muze.jpa.JpaExecutor;
 import org.muze.playdb.Genre;
 import org.muze.playdb.LookupType;
 import org.muze.playdb.PlayDBCrawler;
@@ -21,7 +22,9 @@ public class CrawlingProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(CrawlingProcessor.class);
     private static final CrawlingProcessor INSTANCE = new CrawlingProcessor();
+
     private final PlayDBParser playDBParser;
+    private final JpaExecutor jpaExecutor = JpaExecutor.getInstance();
 
 
     private CrawlingProcessor() {
@@ -50,6 +53,8 @@ public class CrawlingProcessor {
                 throw new Exception("Error while crawling genre: " + genres[i], e);
             }
         }
+
+        jpaExecutor.saveMusicals(totalResult);
 
         executor.shutdown();
         log.info("Crawling completed for all genres. Total musical count: {}", totalResult.size());
