@@ -12,7 +12,7 @@ repositories {
 dependencies {
     implementation 'org.hibernate:hibernate-entitymanager:5.4.30.Final'
     implementation 'com.mysql:mysql-connector-j:9.0.0'
-    runtimeOnly 'com.h2database:h2:1.4.187'
+    runtimeOnly 'com.h2database:h2:2.3.232'
 
     implementation 'org.jsoup:jsoup:1.17.2'
 

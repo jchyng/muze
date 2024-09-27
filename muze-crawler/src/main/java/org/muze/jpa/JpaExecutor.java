@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+
 import org.muze.domain.Actor;
 import org.muze.domain.Casting;
 import org.muze.domain.Musical;
@@ -45,13 +46,13 @@ public class JpaExecutor {
 
                     // 새로운 Casting 생성
                     Casting casting = Casting.builder()
-                        .musical(musical)
-                        .actor(actor)
-                        .role(actor.getRole())
-                        .build();
-
+                            .musical(musical)
+                            .actor(actor)
+                            .role(actor.getRole())
+                            .build();
                     // Casting을 저장
                     em.persist(casting);
+
                 }
             }
             tx.commit();

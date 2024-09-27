@@ -5,6 +5,9 @@
     </encoder>
   </appender>
 
+  <logger name="org.hibernate" level="INFO"/>
+  <logger name="org.hibernate.jpa" level="INFO"/>
+
   <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>
