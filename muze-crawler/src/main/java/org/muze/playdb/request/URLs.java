@@ -15,7 +15,7 @@ public final class URLs {
 
     public static String getMusicalUrl(LookupType lookupType, Genre genre) {
         return MUSICAL_URL + "?" + PLAY_TYPE + lookupType.getCode() + "&" + SUB_CATEGORY
-            + genre.getCode();
+                + genre.getCode();
     }
 
     public static String getMusicalDetailUrl(String musicalId) {

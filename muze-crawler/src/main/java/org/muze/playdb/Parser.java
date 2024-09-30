@@ -1,12 +1,5 @@
 package org.muze.playdb;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,15 +12,17 @@ import org.muze.playdb.request.URLs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 public class Parser {
 
     private Logger log = LoggerFactory.getLogger(Parser.class);
-    private static final Parser INSTANCE = new Parser();
     private final int TIMEOUT = 60000;
-
-    public static Parser getInstance() {
-        return INSTANCE;
-    }
 
     protected int getMaxPage(LookupType lookupType, Genre genre) throws IOException {
         String url = URLs.getMusicalUrl(lookupType, genre);
@@ -46,7 +41,7 @@ public class Parser {
     }
 
     protected List<String> getAllMusicalIds(LookupType lookupType, Genre genre, int maxPage)
-        throws IOException {
+            throws IOException {
         String url = URLs.getMusicalUrl(lookupType, genre) + "&" + URLs.PAGE;
 
         List<String> musicalIds = new ArrayList<>();
@@ -54,7 +49,7 @@ public class Parser {
             Document doc = Jsoup.connect(url + currentPage).timeout(TIMEOUT).get();
 
             Element musicalElement = doc.selectFirst(
-                "#contents .container1 > table > tbody > tr:last-child");
+                    "#contents .container1 > table > tbody > tr:last-child");
 
             List<String> idTags = musicalElement.select("a[onclick^=goDetail]").eachAttr("onclick");
 
@@ -111,23 +106,23 @@ public class Parser {
         }
 
         Element mainCharacterElement = doc.selectFirst(
-            ".detail_contentsbox > table > tbody > tr b");
+                ".detail_contentsbox > table > tbody > tr b");
         String mainCharacter = "";
         if (mainCharacterElement != null) {
             mainCharacter = mainCharacterElement.text();
         }
 
         return Musical.builder()
-            .id(musicalId)
-            .title(title)
-            .theater(theater)
-            .posterImage(poster)
-            .stDate(stDate)
-            .edDate(edDate)
-            .viewAge(viewAge)
-            .runningTime(runningTime)
-            .mainCharacter(mainCharacter)
-            .build();
+                .id(musicalId)
+                .title(title)
+                .theater(theater)
+                .posterImage(poster)
+                .stDate(stDate)
+                .edDate(edDate)
+                .viewAge(viewAge)
+                .runningTime(runningTime)
+                .mainCharacter(mainCharacter)
+                .build();
     }
 
     protected List<Actor> getActors(String musicalId) throws IOException {
@@ -135,7 +130,7 @@ public class Parser {
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
 
         Elements actorListByRole = doc.select(
-            ".detail_contentsbox > table > tbody > tr > td > table > tbody > tr");
+                ".detail_contentsbox > table > tbody > tr > td > table > tbody > tr");
         List<Actor> actors = new ArrayList<>();
 
         for (Element e : actorListByRole) {
@@ -149,11 +144,11 @@ public class Parser {
                 String name = IdAndName.get(i).text();
 
                 Actor actor = Actor.builder()
-                    .id(id)
-                    .name(name)
-                    .profileImage(src)
-                    .role(role)
-                    .build();
+                        .id(id)
+                        .name(name)
+                        .profileImage(src)
+                        .role(role)
+                        .build();
                 actors.add(actor);
             }
         }

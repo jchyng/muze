@@ -1,38 +1,23 @@
 package org.muze.playdb;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.muze.playdb.db.SQLExecutor;
-import org.muze.playdb.domain.Actor;
-import org.muze.playdb.domain.Musical;
 import org.muze.playdb.dto.PlayDBResult;
 import org.muze.playdb.request.Genre;
 import org.muze.playdb.request.LookupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 public class Processor {
 
     private static final Logger log = LoggerFactory.getLogger(Processor.class);
-    private static final Processor INSTANCE = new Processor();
-
-    private final Parser parser;
-
-
-    private Processor() {
-        this.parser = Parser.getInstance();
-    }
-
-    public static Processor getInstance() {
-        return INSTANCE;
-    }
 
 
     public void start(LookupType lookupType, Genre[] genres) throws Exception {
@@ -73,12 +58,12 @@ public class Processor {
 
         executor.shutdown();
         log.info("Crawling completed for all genres. Total musical count: {}",
-            totalResult.getMusicals().size());
+                totalResult.getMusicals().size());
     }
 
     private PlayDBResult callCrawler(LookupType lookupType, Genre genre) {
         log.info("Starting crawling process for genre: {}", genre);
-        Crawler crawler = new Crawler(parser, lookupType, genre);
+        Crawler crawler = new Crawler(lookupType, genre);
         try {
             return crawler.call();
         } catch (Exception e) {

@@ -1,12 +1,13 @@
 package org.muze.playdb.db;
 
+import org.muze.playdb.domain.Actor;
+import org.muze.playdb.domain.Casting;
+import org.muze.playdb.domain.Musical;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Set;
-import org.muze.playdb.domain.Actor;
-import org.muze.playdb.domain.Casting;
-import org.muze.playdb.domain.Musical;
 
 public class SQLExecutor implements AutoCloseable {
     private Connection connection;
@@ -32,8 +33,8 @@ public class SQLExecutor implements AutoCloseable {
 
     public void insertAllMusical(Set<Musical> musicals) {
         String sql = "INSERT INTO musicals "
-            + "(id, title, theater, poster_image, st_date, ed_date, view_age, running_time, main_character) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(id, title, theater, poster_image, st_date, ed_date, view_age, running_time, main_character) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             for (Musical musical : musicals) {
                 stmt.setString(1, musical.getId());

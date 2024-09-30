@@ -1,16 +1,5 @@
 package org.muze.playdb;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.muze.playdb.domain.Actor;
 import org.muze.playdb.domain.Casting;
 import org.muze.playdb.domain.Musical;
@@ -20,16 +9,27 @@ import org.muze.playdb.request.LookupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Crawler implements Callable<PlayDBResult> {
 
     private static final Logger log = LoggerFactory.getLogger(Crawler.class);
     private static final int MUSICALS_PER_THREAD = 1000;
+
     private final Parser parser;
     private final LookupType lookupType;
     private final Genre genre;
 
-    public Crawler(Parser parser, LookupType lookupType, Genre genre) {
-        this.parser = parser;
+    public Crawler(LookupType lookupType, Genre genre) {
+        this.parser = new Parser();
         this.lookupType = lookupType;
         this.genre = genre;
     }
