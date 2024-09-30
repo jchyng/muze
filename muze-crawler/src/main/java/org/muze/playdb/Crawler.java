@@ -11,21 +11,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.muze.domain.Actor;
-import org.muze.domain.Musical;
+import org.muze.playdb.domain.Actor;
+import org.muze.playdb.domain.Casting;
+import org.muze.playdb.domain.Musical;
+import org.muze.playdb.dto.PlayDBResult;
+import org.muze.playdb.request.Genre;
+import org.muze.playdb.request.LookupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlayDBCrawler implements Callable<Map<Musical, List<Actor>>> {
+public class Crawler implements Callable<PlayDBResult> {
 
-    private static final Logger log = LoggerFactory.getLogger(PlayDBCrawler.class);
+    private static final Logger log = LoggerFactory.getLogger(Crawler.class);
     private static final int MUSICALS_PER_THREAD = 1000;
-    private final PlayDBParser playDBParser;
+    private final Parser parser;
     private final LookupType lookupType;
     private final Genre genre;
 
-    public PlayDBCrawler(PlayDBParser playDBParser, LookupType lookupType, Genre genre) {
-        this.playDBParser = playDBParser;
+    public Crawler(Parser parser, LookupType lookupType, Genre genre) {
+        this.parser = parser;
         this.lookupType = lookupType;
         this.genre = genre;
     }
@@ -38,19 +42,19 @@ public class PlayDBCrawler implements Callable<Map<Musical, List<Actor>>> {
      * 4. 각 스레드는 뮤지컬 아이디를 기반으로 뮤지컬 정보와 배우 정보를 가져온다.
      */
     @Override
-    public Map<Musical, List<Actor>> call() throws Exception {
-        int maxPage = playDBParser.getMaxPage(lookupType, genre);
+    public PlayDBResult call() throws Exception {
+        int maxPage = parser.getMaxPage(lookupType, genre);
 
         if(maxPage < 1){
-            return Map.of();
+            return null;
         }
 
-        List<String> musicalIds = playDBParser.getAllMusicalIds(lookupType, genre, maxPage);
+        List<String> musicalIds = parser.getAllMusicalIds(lookupType, genre, maxPage);
 
         int threadCount = (int) Math.ceil((double) musicalIds.size() / MUSICALS_PER_THREAD);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
-        List<Future<Map<Musical, List<Actor>>>> futures = new ArrayList<>();
+        List<Future<PlayDBResult>> futures = new ArrayList<>();
         AtomicInteger processedCount = new AtomicInteger(0);
         int totalCount = musicalIds.size();
 
@@ -62,9 +66,9 @@ public class PlayDBCrawler implements Callable<Map<Musical, List<Actor>>> {
                 executor.submit(() -> crawlingByMusicalIds(subList, processedCount, totalCount)));
         }
 
-        Map<Musical, List<Actor>> result = new HashMap<>();
-        for (Future<Map<Musical, List<Actor>>> future : futures) {
-            result.putAll(future.get());
+        PlayDBResult result = new PlayDBResult();
+        for (Future<PlayDBResult> future : futures) {
+            result.union(future.get());
         }
 
         executor.shutdown();
@@ -77,12 +81,20 @@ public class PlayDBCrawler implements Callable<Map<Musical, List<Actor>>> {
      * @Param processedCount: 처리된 뮤지컬 수
      * @Param totalCount: 전체 뮤지컬 수
      * */
-    private Map<Musical, List<Actor>> crawlingByMusicalIds(List<String> musicalIds,
+    private PlayDBResult crawlingByMusicalIds(List<String> musicalIds,
         AtomicInteger processedCount, int totalCount) throws IOException, ParseException {
-        Map<Musical, List<Actor>> musicalAndActors = new HashMap<>();
+        PlayDBResult result = new PlayDBResult();
+
         for (String musicalId : musicalIds) {
-            Map<Musical, List<Actor>> crawledData = playDBParser.getMusicalAndActors(musicalId);
-            musicalAndActors.putAll(crawledData);
+            Musical musical = parser.getMusical(musicalId);
+            List<Actor> actors = parser.getActors(musicalId);
+
+            result.addMusical(musical);
+            result.addActors(actors);
+            actors.forEach(actor -> {
+                Casting casting = new Casting(musical, actor, actor.getRole());
+                result.addCasting(casting);
+            });
 
             int currentCount = processedCount.incrementAndGet();
             if (currentCount % 100 == 0 || currentCount == totalCount) {
@@ -90,6 +102,6 @@ public class PlayDBCrawler implements Callable<Map<Musical, List<Actor>>> {
                 log.debug("Progress: {}% ({}/{})", progress, currentCount, totalCount);
             }
         }
-        return musicalAndActors;
+        return result;
     }
 }

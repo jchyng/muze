@@ -7,21 +7,25 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.muze.domain.Actor;
-import org.muze.domain.Musical;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.muze.playdb.domain.Actor;
+import org.muze.playdb.domain.Musical;
+import org.muze.playdb.request.Genre;
+import org.muze.playdb.request.LookupType;
+import org.muze.playdb.request.URLs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlayDBParser {
-    private Logger log = LoggerFactory.getLogger(PlayDBParser.class);
-    private static final PlayDBParser INSTANCE = new PlayDBParser();
+public class Parser {
+
+    private Logger log = LoggerFactory.getLogger(Parser.class);
+    private static final Parser INSTANCE = new Parser();
     private final int TIMEOUT = 60000;
 
-    public static PlayDBParser getInstance() {
+    public static Parser getInstance() {
         return INSTANCE;
     }
 
@@ -35,7 +39,7 @@ public class PlayDBParser {
 
         try {
             return Integer.parseInt(pageNums[1].replaceAll("\\D+", ""));
-        } catch (ArrayIndexOutOfBoundsException e)  {
+        } catch (ArrayIndexOutOfBoundsException e) {
             log.info("{} {}에 존재하는 데이터가 없습니다.", lookupType.name(), genre);
             return 0;
         }
@@ -62,19 +66,10 @@ public class PlayDBParser {
         return musicalIds;
     }
 
-    protected Map<Musical, List<Actor>> getMusicalAndActors(String musicalId)
-        throws IOException, ParseException {
+    protected Musical getMusical(String musicalId) throws ParseException, IOException {
         String url = URLs.getMusicalDetailUrl(musicalId);
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
 
-        Musical musical = getMusical(doc, musicalId);
-        List<Actor> actors = getActors(doc);
-
-        return Map.of(musical, actors);
-    }
-
-
-    private Musical getMusical(Document doc, String musicalId) throws ParseException {
         Element element = doc.selectFirst(".pddetail");
 
         String poster = element.selectFirst("h2 > img").attr("src");
@@ -135,7 +130,10 @@ public class PlayDBParser {
             .build();
     }
 
-    private List<Actor> getActors(Document doc) {
+    protected List<Actor> getActors(String musicalId) throws IOException {
+        String url = URLs.getMusicalDetailUrl(musicalId);
+        Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
+
         Elements actorListByRole = doc.select(
             ".detail_contentsbox > table > tbody > tr > td > table > tbody > tr");
         List<Actor> actors = new ArrayList<>();
@@ -153,8 +151,8 @@ public class PlayDBParser {
                 Actor actor = Actor.builder()
                     .id(id)
                     .name(name)
-                    .role(role)
                     .profileImage(src)
+                    .role(role)
                     .build();
                 actors.add(actor);
             }

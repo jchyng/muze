@@ -1,29 +1,28 @@
-package org.muze;
+package org.muze.playdb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
-import org.muze.playdb.Genre;
-import org.muze.playdb.LookupType;
+import org.muze.playdb.request.Genre;
+import org.muze.playdb.request.LookupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CrawlingHttpHandler implements HttpHandler {
+public class Controller implements com.sun.net.httpserver.HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(CrawlingHttpHandler.class);
-    private final CrawlingProcessor crawlingProcessor = CrawlingProcessor.getInstance();
+    private static final Logger logger = LoggerFactory.getLogger(Controller.class);
+    private final Processor processor = Processor.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * POST /crawl/all or /crawl/new path에 대해
-     * RequestBody에 ["LICENSE", "ORIGINAL"]와 같이 전달하여 원하는 범위와 장르에 대해 크롤링을 실행한다.
-     * */
+     * POST /crawl/all or /crawl/new path에 대해 RequestBody에 ["LICENSE", "ORIGINAL"]와 같이 전달하여 원하는 범위와
+     * 장르에 대해 크롤링을 실행한다.
+     */
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod().toUpperCase();
@@ -41,7 +40,7 @@ public class CrawlingHttpHandler implements HttpHandler {
 
                 CompletableFuture.runAsync(() -> {
                     try {
-                        crawlingProcessor.start(lookupType, genres);
+                        processor.start(lookupType, genres);
                         sendSSE(outputStream, "Crawling completed successfully");
                     } catch (Exception e) {
                         sendSSE(outputStream, "Crawling failed");

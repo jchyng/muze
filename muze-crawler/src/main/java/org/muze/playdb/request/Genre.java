@@ -1,4 +1,4 @@
-package org.muze.playdb;
+package org.muze.playdb.request;
 
 import lombok.Getter;
 
