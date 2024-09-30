@@ -1,11 +1,11 @@
-package org.muze.playdb;
+package org.muze.crawling;
 
-import org.muze.playdb.domain.Actor;
-import org.muze.playdb.domain.Casting;
-import org.muze.playdb.domain.Musical;
-import org.muze.playdb.dto.PlayDBResult;
-import org.muze.playdb.request.Genre;
-import org.muze.playdb.request.LookupType;
+import org.muze.domain.Actor;
+import org.muze.domain.Casting;
+import org.muze.domain.Musical;
+import org.muze.dto.PlayDBResult;
+import org.muze.request.Genre;
+import org.muze.request.LookupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

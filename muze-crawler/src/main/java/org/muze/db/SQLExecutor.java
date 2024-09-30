@@ -1,8 +1,8 @@
-package org.muze.playdb.db;
+package org.muze.db;
 
-import org.muze.playdb.domain.Actor;
-import org.muze.playdb.domain.Casting;
-import org.muze.playdb.domain.Musical;
+import org.muze.domain.Actor;
+import org.muze.domain.Casting;
+import org.muze.domain.Musical;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,4 +1,4 @@
-package org.muze.playdb.domain;
+package org.muze.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

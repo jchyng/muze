@@ -1,10 +1,9 @@
-package org.muze.playdb;
+package org.muze.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.muze.playdb.request.Genre;
-import org.muze.playdb.request.LookupType;
+import org.muze.crawling.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

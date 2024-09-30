@@ -1,14 +1,14 @@
-package org.muze.playdb;
+package org.muze.crawling;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.muze.playdb.domain.Actor;
-import org.muze.playdb.domain.Musical;
-import org.muze.playdb.request.Genre;
-import org.muze.playdb.request.LookupType;
-import org.muze.playdb.request.URLs;
+import org.muze.domain.Actor;
+import org.muze.domain.Musical;
+import org.muze.request.Genre;
+import org.muze.request.LookupType;
+import org.muze.request.URLs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

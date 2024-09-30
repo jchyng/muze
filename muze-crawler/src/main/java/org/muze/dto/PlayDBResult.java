@@ -1,9 +1,9 @@
-package org.muze.playdb.dto;
+package org.muze.dto;
 
 import lombok.Getter;
-import org.muze.playdb.domain.Actor;
-import org.muze.playdb.domain.Casting;
-import org.muze.playdb.domain.Musical;
+import org.muze.domain.Actor;
+import org.muze.domain.Casting;
+import org.muze.domain.Musical;
 
 import java.util.HashSet;
 import java.util.List;

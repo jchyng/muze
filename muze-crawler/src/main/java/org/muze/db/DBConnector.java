@@ -1,4 +1,4 @@
-package org.muze.playdb.db;
+package org.muze.db;
 
 import java.io.IOException;
 import java.io.InputStream;
