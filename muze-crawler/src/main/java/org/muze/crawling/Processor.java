@@ -1,5 +1,10 @@
 package org.muze.crawling;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.meilisearch.sdk.Config;
+import com.meilisearch.sdk.Index;
+import com.meilisearch.sdk.exceptions.MeilisearchException;
 import org.muze.db.SQLExecutor;
 import org.muze.dto.PlayDBResult;
 import org.muze.request.Genre;
@@ -16,10 +21,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.meilisearch.sdk.Client;
+
 public class Processor {
 
     private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private static final int THREAD_POOL_SIZE = 10; // 스레드 풀 크기를 상수로 정의
+    private final ObjectMapper mapper;
+
+    public Processor(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     public void start(LookupType lookupType, Genre[] genres) throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(Math.min(genres.length, THREAD_POOL_SIZE));
@@ -28,10 +40,10 @@ public class Processor {
         for (Genre genre : genres) {
             futures.add(executor.submit(() -> callCrawler(lookupType, genre)));
         }
-
         PlayDBResult playDBResult = aggregateData(futures, genres);
 
         saveToDatabase(playDBResult);
+        saveToMeiliSearch(playDBResult);
 
         executor.shutdown();
         log.info("Crawling completed for all genres. Total musical count: {}", playDBResult.getMusicals().size());
@@ -54,15 +66,15 @@ public class Processor {
         return totalResult;
     }
 
-    private void saveToDatabase(PlayDBResult totalResult) throws SQLException {
+    private void saveToDatabase(PlayDBResult playDBResult) throws SQLException {
         try (SQLExecutor sqlExecutor = new SQLExecutor()) {
             Connection connection = sqlExecutor.getConnection();
             try {
                 connection.setAutoCommit(false);  // 자동 커밋 비활성화
 
-                sqlExecutor.insertAllMusical(totalResult.getMusicals());
-                sqlExecutor.insertAllActor(totalResult.getActors());
-                sqlExecutor.insertAllCasting(totalResult.getCastings());
+                sqlExecutor.insertAllMusical(playDBResult.getMusicals());
+                sqlExecutor.insertAllActor(playDBResult.getActors());
+                sqlExecutor.insertAllCasting(playDBResult.getCastings());
 
                 connection.commit();  // 모든 작업이 성공하면 커밋
                 log.info("Successfully saved all data to database");
@@ -73,6 +85,27 @@ public class Processor {
             } finally {
                 connection.setAutoCommit(true);  // 자동 커밋 모드 다시 활성화
             }
+        }
+    }
+
+    private void saveToMeiliSearch(PlayDBResult playDBResult){
+        Client client = new Client(new Config("URL", "MASTER_KEY"));
+        Index musicalIndex = client.index("musicals");
+        Index actorIndex = client.index("actors");
+        Index castingIndex = client.index("castings");
+
+        try {
+            String musicals = mapper.writeValueAsString(playDBResult.getMusicals());
+            String actors = mapper.writeValueAsString(playDBResult.getActors());
+            String castings = mapper.writeValueAsString(playDBResult.getCastings());
+
+            musicalIndex.addDocuments(musicals);
+            actorIndex.addDocuments(actors);
+            castingIndex.addDocuments(castings);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (MeilisearchException e) {
+            log.error("Error indexing musicals in MeiliSearch", e);
         }
     }
 

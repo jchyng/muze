@@ -19,7 +19,7 @@ public class Application {
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
         ObjectMapper mapper = new ObjectMapper();
-        Processor processor = new Processor();
+        Processor processor = new Processor(mapper);
         Controller controller = new Controller(processor, mapper);
 
         server.createContext("/", controller);
