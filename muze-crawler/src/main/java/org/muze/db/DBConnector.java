@@ -1,5 +1,8 @@
 package org.muze.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -8,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class DBConnector {
+    private Logger log = LoggerFactory.getLogger(DBConnector.class);
     private static DBConnector instance;
     private final Properties props;
     private Connection connection;
@@ -45,6 +49,7 @@ public class DBConnector {
             String user = props.getProperty("db.user");
             String password = props.getProperty("db.password");
             connection = DriverManager.getConnection(url, user, password);
+            log.info("Connected to {}", url);
         }
         return connection;
     }

@@ -1,0 +1,14 @@
+### POST 최신 뮤지컬 조회
+POST http://127.0.0.1:8081/crawl/new
+Content-Type: application/json
+
+[
+  "ORIGINAL",
+  "LICENSE"
+]
+
+### POST 모든 뮤지컬 조회
+POST http://127.0.0.1:8081/crawl/new
+Content-Type: application/json
+
+[ "ALL" ]

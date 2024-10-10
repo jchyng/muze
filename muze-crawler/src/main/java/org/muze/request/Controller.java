@@ -82,8 +82,7 @@ public class Controller implements HttpHandler {
         }
     }
 
-    private void sendResponse(HttpExchange exchange, int statusCode, String response)
-            throws IOException {
+    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.sendResponseHeaders(statusCode, response.length());
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(response.getBytes(StandardCharsets.UTF_8));
@@ -108,10 +107,17 @@ public class Controller implements HttpHandler {
     }
 
     private Genre[] parseGenresFromRequest(HttpExchange exchange) {
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
+        try {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8)
+            );
             String body = br.lines().collect(java.util.stream.Collectors.joining());
-            return objectMapper.readValue(body, Genre[].class);
+
+            Genre[] genres = objectMapper.readValue(body, Genre[].class);
+            if (genres != null && genres[0] == Genre.ALL) {
+                genres = Genre.values();
+            }
+            return genres;
         } catch (Exception e) {
             logger.error("Error parsing genres from request", e);
             return new Genre[0];
